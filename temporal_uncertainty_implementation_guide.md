@@ -1831,3 +1831,4 @@ Issue: Training on CoQA and testing on QuAC can lead to "dataset bias" if the la
 Solution: Create a Dataset-Agnostic Labeling Pipeline. Use the exact same semantic similarity thresholds and keyword lists to generate labels for both datasets to ensure the model learns "Uncertainty Physics" rather than "Dataset Quirks."
 
 Refinements on Your Previous FlawsThe LSTM vs. Transformer Debate: I recommend keeping the LSTM for the initial paper. While Transformers are standard for text, an LSTM's hidden state is a more direct mathematical representation of "temporal evolution" for a small number of turns ($<15$). It is easier to explain in the context of $UDR$ and $ECS$.
+
