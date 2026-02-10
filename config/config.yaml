@@ -1,0 +1,141 @@
+# Main Configuration File for Temporal Uncertainty Tracking in Conversational RAG
+
+# Model Configuration
+model:
+  name: "temporal_router"
+  embedding_dim: 768  # BERT-base dimension
+  hidden_dim: 256
+  num_lstm_layers: 2
+  dropout: 0.1
+  num_sources: 4  # Internal KB, External Search, Clarification, Multi-source
+  
+  # Uncertainty Estimator
+  uncertainty:
+    use_mc_dropout: true
+    num_mc_samples: 10
+    epistemic_estimation: "variance"  # variance or entropy
+    aleatoric_estimation: "learned"   # learned or fixed
+  
+  # Temporal Tracking
+  temporal:
+    window_size: 5  # Number of previous turns to consider
+    use_transformer: false  # If true, use Transformer instead of LSTM
+    positional_encoding: true
+
+# Data Configuration
+data:
+  datasets:
+    - name: "coqa"
+      path: "stanfordnlp/coqa"
+      split_ratio: [0.8, 0.1, 0.1]  # train, val, test
+      min_turns: 3
+      max_turns: 15
+    - name: "quac"
+      path: "quac"
+      split_ratio: [0.8, 0.1, 0.1]
+      min_turns: 3
+      max_turns: 12
+  
+  preprocessing:
+    max_seq_length: 512
+    stride: 128
+    lowercase: false
+    remove_punctuation: false
+  
+  batch_size: 32
+  num_workers: 4
+  shuffle_train: true
+  cache_dir: "./data/cache"
+
+# Training Configuration
+training:
+  epochs: 20
+  learning_rate: 1e-4
+  weight_decay: 0.01
+  warmup_steps: 500
+  gradient_clip: 1.0
+  
+  # Optimizer
+  optimizer: "adamw"
+  scheduler: "linear_warmup"
+  
+  # Loss weights
+  loss_weights:
+    routing: 1.0
+    uncertainty: 0.5
+    consistency: 0.3
+  
+  # Early stopping
+  early_stopping:
+    patience: 5
+    min_delta: 0.001
+    metric: "val_f1"
+    mode: "max"
+  
+  # Checkpointing
+  save_every: 1  # epochs
+  keep_best: 3
+  save_dir: "./checkpoints"
+  
+  # Mixed precision training
+  use_amp: true
+  
+  # Logging
+  log_every: 100  # steps
+  wandb:
+    enabled: false  # Set to true to use Weights & Biases
+    project: "temporal-uncertainty-rag"
+    entity: null
+
+# Evaluation Configuration
+evaluation:
+  metrics:
+    - "routing_accuracy"
+    - "f1_score"
+    - "exact_match"
+    - "uncertainty_decay_rate"  # UDR
+    - "epistemic_convergence_speed"  # ECS
+    - "routing_adaptation_score"  # RAS
+  
+  # Temporal metrics configuration
+  temporal_metrics:
+    udr_window: 3  # Number of turns for UDR calculation
+    ecs_threshold: 0.1  # Convergence threshold
+    ras_adaptation_threshold: 0.2
+  
+  # Statistical testing
+  statistical_tests:
+    enabled: true
+    test_type: "paired_t_test"
+    significance_level: 0.05
+    bootstrap_samples: 1000
+
+# Baseline Models
+baselines:
+  - name: "random"
+    description: "Random routing"
+  - name: "static_router"
+    description: "Single-turn static routing"
+  - name: "uncertainty_only"
+    description: "Routing based only on current uncertainty"
+  - name: "oracle"
+    description: "Oracle with ground truth (upper bound)"
+
+# Reproducibility
+seed: 42
+deterministic: true
+cuda_deterministic: true
+
+# Hardware
+device: "cuda"  # cuda or cpu
+gpu_ids: [0]
+num_gpus: 1
+
+# Paths
+paths:
+  data_dir: "./data"
+  cache_dir: "./data/cache"
+  output_dir: "./results"
+  checkpoint_dir: "./checkpoints"
+  figure_dir: "./figures"
+  log_dir: "./logs"
