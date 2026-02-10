@@ -2368,3 +2368,9 @@ The approach is now production-ready and addresses both theoretical concerns (te
 ---
 
 **Good luck with your research!** 🚀
+
+Two things to consider:
+
+1. The Satiation Metric: In your "Future Work" or "Limitations" section, mention that sometimes uncertainty persists because the user is "finished" with the task. This distinguishes "unresolved confusion" from "end-of-conversation closure."
+
+2. Label Noise: In Phase 1, Step 1.3, you may find that the semantic threshold of 0.75 for the KB is too high or low depending on the document density. Be prepared to run a small "Label Quality Check" on 50 samples to validate this threshold before training the full router.
